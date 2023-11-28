@@ -31,6 +31,7 @@ class School:
         pass
 
     def add_faculty(self, faculty):
+        # TODO: Finish this
         self.list_faculty.setdefault([], [])
         self.update_count_people()
 
