@@ -19,51 +19,44 @@ class School:
         Adds student to the schools list of students, a dict
         <list_students>, with keys being the user_id of <student>
         """
-        self.list_students.setdefault(student.get_id(),
-                                      [student])
+        student.change_school(self)
+        student.school_attending = self.school_name
+        self.list_students.setdefault(student.get_id(), str(student))
         self.update_count_people()
 
     def remove_student(self, student):
         """
         Removes a student from the school list of students
         """
-        # TODO: Finish this
-        pass
+        if student.get_id() in self.list_students:
+            self.list_students.pop(student.get_id())
+            student.change_school(None)
 
     def add_faculty(self, faculty):
-        # TODO: Finish this
-        self.list_faculty.setdefault([], [])
+        self.list_faculty.setdefault(faculty.get_id(), str(faculty))
         self.update_count_people()
 
     def remove_faculty(self, faculty):
         """
         Removes a member of faculty from this school
         """
-        # TODO: Finish this
-        pass
-
-    def get_name(self):
-        """
-        Returns name of the school
-        """
-        return self.school_name
+        if faculty in self.list_faculty:
+            self.list_faculty.pop(faculty.get_id())
+            faculty.update_school(None)
 
     def check_student(self, student):
         """
         Checks if a student <student> is in the list of students
         for the school
         """
-        for stu in self.list_students:
-            if student.get_id() == stu:
-                return True
-        return False
+        return student.get_id() in self.list_students
 
     def check_faculty(self, faculty):
         """
         Checks if a faculty member is in the list of faculty
         members for this specific school
         """
-        # TODO: Finish this
+        return faculty.get_id() in self.list_students
 
     def get_students(self):
         """
@@ -71,7 +64,7 @@ class School:
         """
         list_stu = []
         for i in self.list_students:
-            list_stu.append(self.list_students[i][0])
+            list_stu.append(self.list_students[i])
         return list_stu
 
     def get_passing_students(self, min_gr: float):
@@ -91,7 +84,7 @@ class School:
         """
         list_fac = []
         for i in self.list_faculty:
-            list_fac.append(self.list_faculty[i][0])
+            list_fac.append(self.list_faculty[i])
         return list_fac
 
     def get_failing_faculty(self, min_rt: float):
@@ -99,11 +92,17 @@ class School:
         Returns a list of faculty whose rating is less-than
         the minimum rating <min_rt>
         """
-        # TODO: Finish this
         list_fac = []
         for i in self.list_faculty:
-            pass
+            if self.list_faculty[i].get_rating() < min_rt:
+                list_fac.append(self.list_faculty[i])
         return list_fac
+
+    def get_name(self):
+        """
+        Returns name of the school
+        """
+        return self.school_name
 
     def __eq__(self, other):
         """
@@ -113,11 +112,7 @@ class School:
                 == other.num_students + other.num_faculty)
 
     def __str__(self):
-        """
-        Returns a string representation of the school
-        """
-        return (f'School: {self.school_name}, '
-                f'Number of students: {self.num_students}')
+        return self.school_name
 
 
 class Student:
@@ -134,12 +129,9 @@ class Student:
         self.cgpa = 0
         self.course_sel = {1: {}, 2: {}, 3: {}, 4: {}}
         self.credits = 0
-
-        try:
-            school.add_student(self)
-            self.school_attending = school.get_name()
-        except TypeError:
-            self.school_attending = None
+        self.school = school
+        self.school_attending = school.get_name()
+        school.add_student(self)
 
     @staticmethod
     def get_year(code: str) -> int:
@@ -211,7 +203,7 @@ class Student:
         those courses if anything was recorded. Returns NoData for the
         years there are no course data available
         """
-        courses = f"Name: {self.name}\n"
+        courses = f"Name: {self.name}, at {self.get_school()}\n"
         for year in self.course_sel:
             courses += f"--------Year {year}--------\n"
             if len(self.course_sel[year]) == 0:
@@ -226,8 +218,14 @@ class Student:
         """
         Changes the School the Student attends to <school>.
         """
-        school.list_students.pop(self.get_id())
-        self.school_attending = school.get_name()
+        if isinstance(school, School) and school is not self.school:
+            self.school.list_students.pop(self.get_id())
+            self.school = school
+            self.school_attending = school.get_name()
+        elif school is not self.school:
+            self.school_attending = '--None--'
+        else:
+            return None
 
     def get_school(self):
         """
@@ -279,6 +277,13 @@ class Student:
         Name, School, ID, and cGPA.
         """
         return (f'Name: {self.name}, School: {self.get_school()}, '
+                f'ID: {self.ID}, cGPA: {self.cgpa}')
+
+    def __repr__(self):
+        """
+        Returns a more detailed string representation of Student
+        """
+        return (f'Name: {self.name}, School: {self.get_school()}, '
                 f'ID: {self.ID}, Credits achieved: {self.credits}, '
                 f'Year of Study: {self.get_status()}, cGPA: {self.cgpa}')
 
@@ -291,21 +296,42 @@ class Faculty:
         self.ID = user_id
         self.ann_salary = salary
         self.position = position
-        try:
-            school.add_faculty(self)
-            self.school_working = school.get_name()
-        except TypeError:
-            self.school_working = None
+        self.rating = 5.0
+        self.school = school
+        self.work_school = school.get_name()
+        school.add_faculty(self)
 
-    def update_salary(self, updated_salary):
+    def update_salary(self, updated_salary: float):
         self.ann_salary = updated_salary
 
-    def update_school(self):
+    def update_school(self, school: School):
         """
         Updates the school at which this member of faculty works in
         """
-        # TODO: Finish this
-        pass
+        if isinstance(school, School) and school is not self.school:
+            self.school.list_faculty.pop(self.get_id())
+            self.school = school
+            self.work_school = school.get_name()
+        else:
+            self.work_school = '--None--'
+
+    def get_rating(self):
+        """
+        Returns the rating of faculty member. The rating is based on a
+        10-point scale where 0 = bad and 10 = good
+        """
+        return self.rating
+
+    def update_rating(self, updated_rating: float):
+        """
+        Updates faculty member rating
+        """
+        if updated_rating > 10:
+            self.rating = 10
+        elif updated_rating < 0:
+            self.rating = 0
+        else:
+            self.rating = updated_rating
 
     def get_id(self):
         """
@@ -326,10 +352,27 @@ class Faculty:
         """
         self.position = new_pos
 
+    def get_school(self):
+        return self.work_school
+
     def __eq__(self, other):
         return self.ann_salary == other.ann_salary
 
     def __str__(self):
+        """
+        Returns a string representation of Faculty member
+        """
         return (f'Name: {self.name}, ID: {self.ID}, '
-                f'Role: {self.get_position()}, School: {self.school_working}, '
-                f'Salary: {self.ann_salary}')
+                f'Role: {self.get_position()}, '
+                f'School: {self.get_school()}')
+
+    def __repr__(self):
+        """
+        Returns a more detailed string representation of Faculty
+        member
+        """
+        return (f'Name: {self.name}, ID: {self.ID}, '
+                f'Role/Position: {self.get_position()}, '
+                f'School employed: {self.get_school()}, '
+                f'Annual Salary: ${self.ann_salary}, '
+                f'Member Rating: {self.get_rating()}')
