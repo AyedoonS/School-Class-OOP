@@ -21,7 +21,7 @@ class School:
         """
         student.change_school(self)
         student.school_attending = self.school_name
-        self.list_students.setdefault(student.get_id(), str(student))
+        self.list_students.setdefault(student.get_id(), student)
         self.update_count_people()
 
     def remove_student(self, student):
@@ -33,7 +33,7 @@ class School:
             student.change_school(None)
 
     def add_faculty(self, faculty):
-        self.list_faculty.setdefault(faculty.get_id(), str(faculty))
+        self.list_faculty.setdefault(faculty.get_id(), faculty)
         self.update_count_people()
 
     def remove_faculty(self, faculty):
@@ -64,7 +64,7 @@ class School:
         """
         list_stu = []
         for i in self.list_students:
-            list_stu.append(self.list_students[i])
+            list_stu.append(str(self.list_students[i]))
         return list_stu
 
     def get_passing_students(self, min_gr: float):
@@ -74,8 +74,8 @@ class School:
         """
         list_stu = []
         for i in self.list_students:
-            if self.list_students[i][0].get_cgpa() >= min_gr:
-                list_stu.append(self.list_students[i])
+            if self.list_students[i].get_cgpa() >= min_gr:
+                list_stu.append(str(self.list_students[i]))
         return list_stu
 
     def get_faculty(self):
@@ -84,7 +84,7 @@ class School:
         """
         list_fac = []
         for i in self.list_faculty:
-            list_fac.append(self.list_faculty[i])
+            list_fac.append(str(self.list_faculty[i]))
         return list_fac
 
     def get_failing_faculty(self, min_rt: float):
@@ -95,7 +95,7 @@ class School:
         list_fac = []
         for i in self.list_faculty:
             if self.list_faculty[i].get_rating() < min_rt:
-                list_fac.append(self.list_faculty[i])
+                list_fac.append(str(self.list_faculty[i]))
         return list_fac
 
     def get_name(self):
@@ -207,7 +207,7 @@ class Student:
         for year in self.course_sel:
             courses += f"--------Year {year}--------\n"
             if len(self.course_sel[year]) == 0:
-                courses += '       NoData\n'
+                courses += '        NoData\n'
             else:
                 for course in self.course_sel[year]:
                     courses += (f"|c| Course: {course} "
@@ -276,15 +276,15 @@ class Student:
         Returns a string representation of Student <self>, including their
         Name, School, ID, and cGPA.
         """
-        return (f'Name: {self.name}, School: {self.get_school()}, '
-                f'ID: {self.ID}, cGPA: {self.cgpa}')
+        return (f'Name: {self.name}, Student ID: {self.ID}, '
+                f'Credits achieved: {self.credits}, cGPA: {self.cgpa}')
 
     def __repr__(self):
         """
         Returns a more detailed string representation of Student
         """
         return (f'Name: {self.name}, School: {self.get_school()}, '
-                f'ID: {self.ID}, Credits achieved: {self.credits}, '
+                f'Student ID: {self.ID}, Credits achieved: {self.credits}, '
                 f'Year of Study: {self.get_status()}, cGPA: {self.cgpa}')
 
 
@@ -320,7 +320,7 @@ class Faculty:
         Returns the rating of faculty member. The rating is based on a
         10-point scale where 0 = bad and 10 = good
         """
-        return self.rating
+        return float(self.rating)
 
     def update_rating(self, updated_rating: float):
         """
@@ -363,8 +363,7 @@ class Faculty:
         Returns a string representation of Faculty member
         """
         return (f'Name: {self.name}, ID: {self.ID}, '
-                f'Role: {self.get_position()}, '
-                f'School: {self.get_school()}')
+                f'Role/Position: {self.get_position()}')
 
     def __repr__(self):
         """
