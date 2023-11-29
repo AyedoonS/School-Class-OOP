@@ -3,28 +3,34 @@
 
 class School:
 
-    def __init__(self, name: str):
+    def __init__(self, name: str) -> None:
         self.school_name = name
         self.list_students = {}
         self.num_students = 0
         self.list_faculty = {}
         self.num_faculty = 0
 
-    def update_count_people(self):
+    def update_count_people(self) -> None:
+        """
+        Updates the count of students and faculty in the school
+        """
         self.num_faculty = len(self.list_faculty)
         self.num_students = len(self.list_students)
 
-    def add_student(self, student):
+    def add_student(self, student) -> None:
         """
         Adds student to the schools list of students, a dict
         <list_students>, with keys being the user_id of <student>
+
+        TODO (maybe): Split dict of students by their year of study
+        (i.e., a key for years 1-4).
         """
         student.change_school(self)
         student.school_attending = self.school_name
         self.list_students.setdefault(student.get_id(), student)
         self.update_count_people()
 
-    def remove_student(self, student):
+    def remove_student(self, student) -> None:
         """
         Removes a student from the school list of students
         """
@@ -32,33 +38,39 @@ class School:
             self.list_students.pop(student.get_id())
             student.change_school(None)
 
-    def add_faculty(self, faculty):
+    def add_faculty(self, faculty) -> None:
+        """
+        Adds faculty to the schools list of faculty, a dict
+        <list_faculty>, with keys being the user_id of faculty
+        member
+        """
         self.list_faculty.setdefault(faculty.get_id(), faculty)
         self.update_count_people()
 
-    def remove_faculty(self, faculty):
+    def remove_faculty(self, faculty) -> None:
         """
         Removes a member of faculty from this school
         """
         if faculty in self.list_faculty:
             self.list_faculty.pop(faculty.get_id())
             faculty.update_school(None)
+            faculty.update_salary(0)
 
-    def check_student(self, student):
+    def check_student(self, student) -> bool:
         """
         Checks if a student <student> is in the list of students
         for the school
         """
         return student.get_id() in self.list_students
 
-    def check_faculty(self, faculty):
+    def check_faculty(self, faculty) -> bool:
         """
         Checks if a faculty member is in the list of faculty
         members for this specific school
         """
         return faculty.get_id() in self.list_students
 
-    def get_students(self):
+    def get_students(self) -> list:
         """
         Returns a list of students that attend the school
         """
@@ -67,7 +79,7 @@ class School:
             list_stu.append(str(self.list_students[i]))
         return list_stu
 
-    def get_passing_students(self, min_gr: float):
+    def get_passing_students(self, min_gr: float) -> list:
         """
         Returns a list of students whose cGPA is greater-than or
         equal-to the minimum grade point <min_gr>
@@ -78,7 +90,7 @@ class School:
                 list_stu.append(str(self.list_students[i]))
         return list_stu
 
-    def get_faculty(self):
+    def get_faculty(self) -> list:
         """
         Returns a list of faculty at the school
         """
@@ -87,7 +99,7 @@ class School:
             list_fac.append(str(self.list_faculty[i]))
         return list_fac
 
-    def get_failing_faculty(self, min_rt: float):
+    def get_failing_faculty(self, min_rt: float) -> list:
         """
         Returns a list of faculty whose rating is less-than
         the minimum rating <min_rt>
@@ -98,28 +110,35 @@ class School:
                 list_fac.append(str(self.list_faculty[i]))
         return list_fac
 
-    def get_name(self):
+    def get_name(self) -> str:
         """
         Returns name of the school
         """
         return self.school_name
 
-    def __eq__(self, other):
+    def __eq__(self, other) -> bool:
         """
         Returns True if <num_students> of self equals num_students of other
         """
         return (self.num_students + self.num_faculty
                 == other.num_students + other.num_faculty)
 
-    def __str__(self):
+    def __str__(self) -> str:
+        """
+        Returns a string representation of School <self>
+        """
         return self.school_name
+
+    def __repr__(self) -> str:
+        return (f'{self.school_name}, Students: {self.num_students}, '
+                f'Faculty: {self.num_faculty}')
 
 
 class Student:
 
     # TODO: randomly generate user id for each student
     # + (maybe explicitly check to ensure it is not already taken)
-    def __init__(self, name: str, user_id: int, school: School):
+    def __init__(self, name: str, user_id: int, school: School) -> None:
         """
         Initialize student, assign it variables <name>, <user_id>,
         and <school>, if it is a valid school
@@ -136,11 +155,14 @@ class Student:
     @staticmethod
     def get_year(code: str) -> int:
         """
-        Returns the level of a course given its code, <code>
+        Returns the level of a course given its code, <code>.
+
+        This is represented by the third character of a course code.
+        (ex. MA1[3]099 = third-year course, PH2[4]001 = fourth-year)
         """
         return int(code[3])
 
-    def update_cgpa(self):
+    def update_cgpa(self) -> None:
         """
         Updates student cGPA - The average of their GPA across all their
         courses
@@ -151,9 +173,12 @@ class Student:
                 if isinstance(self.course_sel[year][lec], float):
                     sum_gpa += self.course_sel[year][lec]
                     num_courses += 1
-        self.cgpa = round(sum_gpa / num_courses, 2)
+        if num_courses == 0:
+            return None
+        else:
+            self.cgpa = round(sum_gpa / num_courses, 2)
 
-    def add_courses(self, courses: list[str]):
+    def add_courses(self, courses: list[str]) -> None:
         """
         Adds courses from list: <courses> to Student's transcript
         """
@@ -161,7 +186,7 @@ class Student:
             year = self.get_year(course)
             self.course_sel[year].setdefault(course, 'In-Progress')
 
-    def add_marks(self, mark_list: list[list[str, int]]):
+    def add_marks(self, mark_list: list[list[str, int]]) -> None:
         """
         Adds marks, <mark_list[1]> to the courses given a list of marks, with
         their corresponding course <mark_list[0]>, and updates Student's cGPA
@@ -174,7 +199,7 @@ class Student:
                 self.credits += 1
         self.update_cgpa()
 
-    def update_mark(self, course: str, mark: float):
+    def update_mark(self, course: str, mark: float) -> None:
         """
         Updates the GPA mark for a course, <course> of a Student from
         its original value -- if there was anything -- to <mark>
@@ -184,7 +209,7 @@ class Student:
             self.course_sel[year][course] = mark
             self.update_cgpa()
 
-    def remove_courses(self, courses: list[str]):
+    def remove_courses(self, courses: list[str]) -> None:
         """
         Removes courses in list <courses> from Student's transcript, if
         it was a course taken by the student
@@ -196,7 +221,7 @@ class Student:
                     self.credits -= 1
         self.update_cgpa()
 
-    def get_courses(self):
+    def get_courses(self) -> str:
         """
         Returns the course codes of courses a student had taken
         throughout their time at the school, along with the GPA of
@@ -214,7 +239,7 @@ class Student:
                                 f"|g| GPA: {self.course_sel[year][course]}\n")
         return courses
 
-    def change_school(self, school: School):
+    def change_school(self, school: School) -> None:
         """
         Changes the School the Student attends to <school>.
         """
@@ -227,31 +252,31 @@ class Student:
         else:
             return None
 
-    def get_school(self):
+    def get_school(self) -> str:
         """
         Returns the school that the student attends
         """
         return self.school_attending
 
-    def get_id(self):
+    def get_id(self) -> int:
         """
         Returns student's ID
         """
         return self.ID
 
-    def get_name(self):
+    def get_name(self) -> str:
         """
         Returns student's name
         """
         return self.name
 
-    def get_cgpa(self):
+    def get_cgpa(self) -> float:
         """
         Returns student's cGPA
         """
         return self.cgpa
 
-    def get_status(self):
+    def get_status(self) -> int:
         """
         Returns students year of study
         (given by their credit count)
@@ -265,13 +290,13 @@ class Student:
         else:
             return 1
 
-    def __eq__(self, other):
+    def __eq__(self, other) -> bool:
         """
         Returns cGPA Student <self> == cGPA Student <other>
         """
         return self.cgpa == other.cgpa
 
-    def __str__(self):
+    def __str__(self) -> str:
         """
         Returns a string representation of Student <self>, including their
         Name, School, ID, and cGPA.
@@ -279,7 +304,7 @@ class Student:
         return (f'Name: {self.name}, Student ID: {self.ID}, '
                 f'Credits achieved: {self.credits}, cGPA: {self.cgpa}')
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         """
         Returns a more detailed string representation of Student
         """
@@ -291,7 +316,7 @@ class Student:
 class Faculty:
 
     def __init__(self, name: str, user_id: int, school: School,
-                 position: str, salary: float):
+                 position: str, salary: float) -> None:
         self.name = name
         self.ID = user_id
         self.ann_salary = salary
@@ -301,10 +326,13 @@ class Faculty:
         self.work_school = school.get_name()
         school.add_faculty(self)
 
-    def update_salary(self, updated_salary: float):
+    def update_salary(self, updated_salary: float) -> None:
+        """
+        Updates the salary for the faculty member
+        """
         self.ann_salary = updated_salary
 
-    def update_school(self, school: School):
+    def update_school(self, school: School) -> None:
         """
         Updates the school at which this member of faculty works in
         """
@@ -315,14 +343,14 @@ class Faculty:
         else:
             self.work_school = '--None--'
 
-    def get_rating(self):
+    def get_rating(self) -> float:
         """
         Returns the rating of faculty member. The rating is based on a
         10-point scale where 0 = bad and 10 = good
         """
         return float(self.rating)
 
-    def update_rating(self, updated_rating: float):
+    def update_rating(self, updated_rating: float) -> None:
         """
         Updates faculty member rating
         """
@@ -333,39 +361,39 @@ class Faculty:
         else:
             self.rating = updated_rating
 
-    def get_id(self):
+    def get_id(self) -> int:
         """
         Returns the ID of the member of faculty
         """
         return self.ID
 
-    def get_position(self):
+    def get_position(self) -> str:
         """
         Returns the role/position/level the member of faculty is working at
         """
         return self.position
 
-    def update_position(self, new_pos: str):
+    def update_position(self, new_pos: str) -> None:
         """
         Updates/changes the position of this member of faculty to
         <new_pos>
         """
         self.position = new_pos
 
-    def get_school(self):
+    def get_school(self) -> str:
         return self.work_school
 
-    def __eq__(self, other):
-        return self.ann_salary == other.ann_salary
+    def __eq__(self, other) -> bool:
+        return self.rating == other.rating
 
-    def __str__(self):
+    def __str__(self) -> str:
         """
         Returns a string representation of Faculty member
         """
         return (f'Name: {self.name}, ID: {self.ID}, '
                 f'Role/Position: {self.get_position()}')
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         """
         Returns a more detailed string representation of Faculty
         member
