@@ -62,7 +62,6 @@ class SchoolBoard:
     def __repr__(self) -> str:
         """
         Returns a more detailed string representation of self
-        :return:
         """
         return (f'Name of board: {self.name_board}, Region: {self.region}, '
                 f'Number of schools: {self.num_schools}')
