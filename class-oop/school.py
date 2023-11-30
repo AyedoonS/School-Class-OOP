@@ -1,6 +1,73 @@
 # An OOP project i've been working on, it 
 # is a WIP, updates will eventually be made
 
+class SchoolBoard:
+    def __init__(self, board: str, region: str) -> None:
+        self.name_board = board
+        self.region = region
+        self.list_schools = []
+        self.num_schools = 0
+
+    def get_name_board(self) -> str:
+        return self.name_board
+
+    def add_school(self, school) -> None:
+        """
+        Adds a school to a list comprised of schools associated
+        with the school board <self>
+        """
+        if school in self.list_schools:
+            return None
+        else:
+            self.list_schools.append(school)
+
+    def remove_school(self, school) -> None:
+        if school in self.list_schools:
+            self.list_schools.pop(school)
+        return None
+
+    def get_schools(self) -> list:
+        """
+        Returns a list of all the schools affiliated with the school board
+        self
+        """
+        return self.list_schools
+
+    def find_school(self, school) -> bool:
+        """
+        Returns True if school <school> is affiliated with the school board
+        self
+        """
+        return school in self.list_schools
+
+    def get_region(self) -> str:
+        """
+        Returns the region of the school
+        """
+        return self.region
+
+    def __eq__(self, other) -> bool:
+        """
+        Returns true if the number of schools in the school board
+        <self> equals those in <other>
+        """
+        return self.num_schools == other.num_schools
+
+    def __str__(self) -> str:
+        """
+        Returns a basic string representation of self
+        """
+        return f'Name of board: {self.name_board}, Region: {self.region}'
+
+    def __repr__(self) -> str:
+        """
+        Returns a more detailed string representation of self
+        :return:
+        """
+        return (f'Name of board: {self.name_board}, Region: {self.region}, '
+                f'Number of schools: {self.num_schools}')
+
+
 class School:
 
     def __init__(self, name: str) -> None:
@@ -152,6 +219,8 @@ class Student:
         self.school_attending = school.get_name()
         school.add_student(self)
 
+        self.num_courses = 0
+
     @staticmethod
     def get_year(code: str) -> int:
         """
@@ -173,10 +242,11 @@ class Student:
                 if isinstance(self.course_sel[year][lec], float):
                     sum_gpa += self.course_sel[year][lec]
                     num_courses += 1
+        self.num_courses = num_courses
         if num_courses == 0:
             return None
         else:
-            self.cgpa = round(sum_gpa / num_courses, 2)
+            self.cgpa = round(float(sum_gpa / num_courses), 2)
 
     def add_courses(self, courses: list[str]) -> None:
         """
