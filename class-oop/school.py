@@ -1,5 +1,4 @@
-# An OOP project i've been working on, it 
-# is a WIP, updates will eventually be made
+# A relatively basic introductory OOP project
 
 class SchoolBoard:
     def __init__(self, board: str, region: str) -> None:
@@ -9,6 +8,9 @@ class SchoolBoard:
         self.num_schools = 0
 
     def get_name_board(self) -> str:
+        """
+        Returns the name of the school board
+        """
         return self.name_board
 
     def add_school(self, school) -> None:
@@ -22,6 +24,10 @@ class SchoolBoard:
             self.list_schools.append(school)
 
     def remove_school(self, school) -> None:
+        """
+        Removes a school from the list of schools associated with the
+        school board self
+        """
         if school in self.list_schools:
             self.list_schools.pop(school)
         return None
@@ -61,7 +67,7 @@ class SchoolBoard:
 
     def __repr__(self) -> str:
         """
-        Returns a more detailed string representation of self
+        Returns a more detailed string representation of self\
         """
         return (f'Name of board: {self.name_board}, Region: {self.region}, '
                 f'Number of schools: {self.num_schools}')
@@ -196,6 +202,9 @@ class School:
         return self.school_name
 
     def __repr__(self) -> str:
+        """
+        Returns a more detailed string representation of school <self>
+        """
         return (f'{self.school_name}, Students: {self.num_students}, '
                 f'Faculty: {self.num_faculty}')
 
@@ -226,7 +235,7 @@ class Student:
         Returns the level of a course given its code, <code>.
 
         This is represented by the third character of a course code.
-        (ex. MA1[3]099 = third-year course, PH2[4]001 = fourth-year)
+        (ex. ABC[3]789 = third-year course, PH2[4]001 = fourth-year)
         """
         return int(code[3])
 
@@ -444,15 +453,22 @@ class Faculty:
 
     def update_position(self, new_pos: str) -> None:
         """
-        Updates/changes the position of this member of faculty to
-        <new_pos>
+        Updates/changes the position of this member of faculty to <new_pos>
         """
         self.position = new_pos
 
     def get_school(self) -> str:
+        """
+        Returns the school that the faculty member is associated with
+        """
         return self.work_school
 
     def __eq__(self, other) -> bool:
+        """
+        Returns true if the rating of self == rating of other
+        :param other:
+        :return:
+        """
         return self.rating == other.rating
 
     def __str__(self) -> str:
